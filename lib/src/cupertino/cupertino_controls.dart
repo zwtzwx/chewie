@@ -83,7 +83,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
     final iconColor = widget.iconColor;
     final orientation = MediaQuery.of(context).orientation;
     final barHeight = orientation == Orientation.portrait ? 30.0 : 47.0;
-    final buttonPadding = orientation == Orientation.portrait ? 16.0 : 24.0;
+    // final buttonPadding = orientation == Orientation.portrait ? 16.0 : 24.0;
 
     return MouseRegion(
       onHover: (_) => _cancelAndRestartTimer(),
@@ -102,12 +102,12 @@ class _CupertinoControlsState extends State<CupertinoControls>
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  _buildTopBar(
-                    backgroundColor,
-                    iconColor,
-                    barHeight,
-                    buttonPadding,
-                  ),
+                  // _buildTopBar(
+                  //   backgroundColor,
+                  //   iconColor,
+                  //   barHeight,
+                  //   buttonPadding,
+                  // ),
                   const Spacer(),
                   if (_subtitleOn)
                     Transform.translate(
@@ -274,12 +274,14 @@ class _CupertinoControlsState extends State<CupertinoControls>
                       )
                     : Row(
                         children: <Widget>[
-                          _buildSkipBack(iconColor, barHeight),
+                          // _buildSkipBack(iconColor, barHeight),
+                          _buildVoiceButton(iconColor, barHeight),
                           _buildPlayPause(controller, iconColor, barHeight),
-                          _buildSkipForward(iconColor, barHeight),
+                          // _buildSkipForward(iconColor, barHeight),
                           _buildPosition(iconColor),
                           _buildProgressBar(),
                           _buildRemaining(iconColor),
+                          _buildFullScreenButton(iconColor, barHeight),
                           _buildSubtitleToggle(iconColor, barHeight),
                           if (chewieController.allowPlaybackSpeedChanging)
                             _buildSpeedButton(controller, iconColor, barHeight),
@@ -303,6 +305,27 @@ class _CupertinoControlsState extends State<CupertinoControls>
       child: Text(
         'LIVE',
         style: TextStyle(color: iconColor, fontSize: 12.0),
+      ),
+    );
+  }
+
+  GestureDetector _buildFullScreenButton(Color iconColor, double barHeight) {
+    return GestureDetector(
+      onTap: _onExpandCollapse,
+      child: Container(
+        height: barHeight,
+        color: Colors.transparent,
+        // margin: const EdgeInsets.only(left: 10.0),
+        padding: const EdgeInsets.only(
+          right: 10.0,
+        ),
+        child: Icon(
+          chewieController.isFullScreen
+              ? CupertinoIcons.arrow_down_right_arrow_up_left
+              : CupertinoIcons.arrow_up_left_arrow_down_right,
+          color: iconColor,
+          size: 18.0,
+        ),
       ),
     );
   }
@@ -367,6 +390,35 @@ class _CupertinoControlsState extends State<CupertinoControls>
         isPlaying: controller.value.isPlaying,
         show: showPlayButton,
         onPressed: _playPause,
+      ),
+    );
+  }
+
+  GestureDetector _buildVoiceButton(Color iconColor, double barHeight) {
+    return GestureDetector(
+      onTap: () {
+        _cancelAndRestartTimer();
+
+        if (_latestValue.volume == 0) {
+          controller.setVolume(_latestVolume ?? 0.5);
+        } else {
+          _latestVolume = controller.value.volume;
+          controller.setVolume(0.0);
+        }
+      },
+      child: Container(
+        height: barHeight,
+        color: Colors.transparent,
+        margin: const EdgeInsets.only(left: 10.0),
+        padding: const EdgeInsets.only(
+          left: 6.0,
+          right: 6.0,
+        ),
+        child: Icon(
+          _latestValue.volume > 0 ? Icons.volume_up : Icons.volume_off,
+          color: iconColor,
+          size: 18.0,
+        ),
       ),
     );
   }
